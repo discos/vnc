@@ -26,6 +26,11 @@ else
     print_help
 fi
 
+if ! hash nslookup &>/dev/null; then
+    echo -e "This program requires 'nslookup' to be installed.\nThe package to install may vary depending on your operating system.\n"
+    print_help
+fi
+
 remote_sessions=("discos-manager:15001"
                  "discos-console:15002"
                  "discos-dev:15003"
@@ -106,11 +111,6 @@ done
 
 if [[ -z "$local_port" ]]; then
     echo "Could not find an available port in range 15000-15050, retry!"
-    print_help
-fi
-
-if ! hash nslookup &>/dev/null; then
-    echo -e "This program requires 'nslookup' to be installed.\nThe package to install may vary depending on your operating system.\n"
     print_help
 fi
 

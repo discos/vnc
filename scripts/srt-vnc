@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+
+print_help() {
+    echo "`basename $0` v1.2"
+    echo "Start a vncviewer session to a DISCOS machine."
+    echo "Usage: '`basename $0` [OPTIONS] <username>@<vnc_session>'"
+    echo "Options:"
+    echo "    -h | --help               prints this help message and exit"
+    echo "    -s | --sessions           prints the list of available VNC sessions"
+    echo "    -v | --viewonly           start the vncviewer in view only mode"
+    exit 1
+}
+
+if ! hash vncviewer &>/dev/null; then
+    echo -e "This program requires 'vncviewer' to be installed.\nThe package to install may vary depending on your operating system.\n"
+    print_help
+fi
+
+if hash ss &>/dev/null; then
+    PORTCOMMAND="ss -tulpn"
+elif hash netstat &>/dev/null; then
+    PORTCOMMAND="netstat -an"
+else
+    echo -e "This program requires either 'ss' or 'netstat' programs to be installed.\nThe package to install may vary depending on your operating system.\n"
+    print_help
+fi
+
+remote_sessions=("discos-manager:15001"
+                 "discos-console:15002"
+                 "discos-dev:15003"
+                 "fssr:15004"
+                 "discos-training-manager:15011"
+                 "discos-training:15012")
+
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case $key in
+    -h|--help)
+    print_help
+    ;;
+    -s|--sessions)
+    echo "Available VNC sessions:"
+    echo ""
+    for session in "${remote_sessions[@]}" ; do
+        session_name="${session%%:*}"
+        echo "$session_name"
+    done
+    exit 0
+    ;;
+    -v|--viewonly)
+    viewonly="-ViewOnly -DotWhenNoCursor "
+    shift
+    ;;
+    *)
+    if [[ $1 == *"@"* ]]; then
+        while IFS='@' read -ra ARG; do
+            if [[ "${#ARG[@]}" -ne 2 ]]; then
+                echo "Type <username>@<vnc_session>, retry!"
+                print_help
+            fi
+            remote_user=${ARG[0]}
+            remote_session=${ARG[1]}
+        done <<< "$1"
+    else
+        echo "Unrecognized option: '$1'!"
+        print_help
+    fi
+    shift
+    ;;
+esac
+done
+
+REMOTE_PORT=0
+
+for session in "${remote_sessions[@]}" ; do
+    session_name="${session%%:*}"
+    port="${session##*:}"
+    if [[ "$remote_session" = "$session_name" ]]; then
+        remote_port=$port
+        break
+    fi
+done
+
+if [[ $remote_port -eq 0 ]]; then
+    echo "Type <username>@<vnc_session>, retry!"
+    print_help
+fi
+
+for i in {0..50}
+do
+    local_port_attempt=$((15000 + i))
+    if ! $PORTCOMMAND | grep 127.0.0.1[.:]$local_port_attempt >/dev/null; then
+        local_port=$local_port_attempt
+        break
+    fi
+done
+
+if [[ -z "$local_port" ]]; then
+    echo "Could not find an available port in range 15000-15050, retry!"
+    print_help
+fi
+
+# Check if we are connecting from inside the SRT network or from outside
+if [[ `nslookup 192.168.200.232 | grep 'natsrt-loc.srt.inaf.it' | wc -l` == 1 ]]; then
+    gateway="192.168.200.232"
+else
+    gateway="212.189.163.10"
+fi
+
+# Open the tunnel and launch vncviewer
+ssh -f -L $local_port:localhost:$remote_port $remote_user@$gateway sleep 10; vncviewer localhost:$local_port $viewonly&>/dev/null &

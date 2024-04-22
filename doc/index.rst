@@ -4,7 +4,8 @@ DISCOS-VNC
 
 .. topic:: Preface
 
-   preface
+   This tutorial will guide you through all the steps necessaries to connect to
+   a DISCOS VNC graphical session.
 
 
 .. toctree::

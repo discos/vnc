@@ -8,6 +8,7 @@ print_help() {
     echo "    -h | --help               prints this help message and exit"
     echo "    -s | --sessions           prints the list of available VNC sessions"
     echo "    -v | --viewonly           start the vncviewer in view only mode"
+    echo "    -d | --debug              print the debug output"
     exit 1
 }
 
@@ -32,6 +33,8 @@ remote_sessions=("discos-manager:15001"
                  "discos-training-manager:15011"
                  "discos-training:15012")
 
+debug="null"
+
 while [[ $# -gt 0 ]]
 do
 key="$1"
@@ -48,6 +51,10 @@ case $key in
         echo "$session_name"
     done
     exit 0
+    ;;
+    -d|--debug)
+    debug="stdout"
+    shift
     ;;
     -v|--viewonly)
     viewonly="-ViewOnly -DotWhenNoCursor "
@@ -102,6 +109,11 @@ if [[ -z "$local_port" ]]; then
     print_help
 fi
 
+if ! hash nslookup &>/dev/null; then
+    echo -e "This program requires 'nslookup' to be installed.\nThe package to install may vary depending on your operating system.\n"
+    print_help
+fi
+
 # Check if we are connecting from inside the SRT network or from outside
 if [[ `nslookup 192.168.200.232 | grep 'natsrt-loc.srt.inaf.it' | wc -l` == 1 ]]; then
     gateway="192.168.200.232"
@@ -110,4 +122,4 @@ else
 fi
 
 # Open the tunnel and launch vncviewer
-ssh -f -L $local_port:localhost:$remote_port $remote_user@$gateway sleep 10; vncviewer localhost:$local_port $viewonly&>/dev/null &
+ssh -f -L $local_port:localhost:$remote_port $remote_user@$gateway sleep 10; vncviewer localhost:$local_port $viewonly &>/dev/$debug &

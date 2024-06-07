@@ -64,3 +64,12 @@ Now execute the following command in order to make the script executable
    $ chmod +x srt-vnc
 
 Now you should be ready to connect and open a VNC session.
+
+.. note::
+
+   If you plan on connecting to a graphical session for quick look and data reduction,
+   you have to download the `srt-vnc-ql
+   <https://github.com/discos/vnc/raw/master/scripts/srt-vnc-ql>`_ script
+   instead. The syntax remains the same as shown later in the document, with the
+   only exception of the script name which will be `srt-vnc-ql` instead of
+   `srt-vnc`.

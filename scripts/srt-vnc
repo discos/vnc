@@ -122,4 +122,4 @@ else
 fi
 
 # Open the tunnel and launch vncviewer
-ssh -f -L $local_port:localhost:$remote_port $remote_user@$gateway sleep 10; vncviewer localhost:$local_port $viewonly &>/dev/$debug &
+ssh -f -L $local_port:localhost:$remote_port $remote_user@$gateway sleep 10; vncviewer -SecurityTypes None,VncAuth localhost:$local_port $viewonly &>/dev/$debug &

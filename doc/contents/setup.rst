@@ -36,16 +36,6 @@ set of commands will install the `vncviewer` command for you:
    $ sudo apt update
    $ sudo apt install tigervnc-viewer
 
-You can check if the setup process was successful by executing the `vncviewer`
-command like the following:
-
-.. code-block::
-
-   $ vncviewer -h
-   TigerVNC Viewer v1.13.1
-   Built on: 2023-03-04 00:19
-   ...
-
 Microsoft Windows configuration
 -------------------------------
 If you are using Microsoft Windows and the WLS system, you need to install
@@ -65,6 +55,40 @@ This will ensure you can execute the `vncviewer` command under linux and the
 tigervnc executable will be launched.
 A similar configuration must be applied if you use another `vncviewer` client
 like `RealVNC`.
+
+MacOS configuration
+-------------------
+If you are using a Apple MacOS system, the following steps will guide you
+through the process of installing TigerVNC Viewer so that the script can
+recognize the `vncviewer` command. First of all download the `.dmg` file from
+the TigerVNC releases page, the file name should look like `TigerVNC-<version>.dmg`.
+Now open the `Download` directory from `Finder` and double click on the
+downloaded file, a new `Finder` window should pop up. You can now simply drag
+or copy and paste the `TigerVNC Viewer <version>` file inside the `Applications`
+folder. Now the `TigerVNC Viewer <version>` application should be installed and
+ready to used in a standalone fashion. We still need to configure the system in
+order to launch it whenever a user types the `vncviewer` command onto a
+terminal. To do so, open a terminal (either `zsh` or `bash` are supported) and
+type the following commands:
+
+.. code-block::
+
+   $ cd /Applications/TigerVNC\ Viewer\ <version>.app/Contents/MacOS
+   $ sudo mkdir -p /usr/local/bin
+   $ cp "TigerVNC Viewer" /usr/local/bin/vncviewer
+
+
+Check if the setup process was successful
+-----------------------------------------
+You can check if the setup process was successful by executing the `vncviewer`
+command, the output should resemble the following:
+
+.. code-block::
+
+   $ vncviewer -h
+   TigerVNC Viewer v1.13.1
+   Built on: 2023-03-04 00:19
+   ...
 
 
 Additional dependencies
